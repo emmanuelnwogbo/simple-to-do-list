@@ -14,17 +14,8 @@ MongoClient.connect('mongodb://localhost:27017/TodoApp', (err, db) => {
   }
   console.log('Connected to MongDB server');
 
-
-  db.collection('Todos').insertOne({
-    text: 'Something to do',
-    completed: false
-  }, (err, result) => {
-      if(err) {
-        return console.log('Unable to insert todo', err);
-      }
-
-      console.log(JSON.stringify(result.ops, undefined, 2));
-      console.log(result.ops[0]._id.getTimestamp());
+  db.collection('Todos').deleteMany({text: 'Eat lunch'}).then(result => {
+    console.log(result);
   });
 
   db.close();
