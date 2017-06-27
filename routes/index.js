@@ -20,6 +20,10 @@ router.post('/todos', (req, res, next) => {
   });
 });
 
+router.post('/photos/todos', (req, res, next) => {
+  //console.log(res.status);
+});
+
 router.get('/todos', (req, res) => {
   Todo.find().then(todos => {
     res.send({todos});
