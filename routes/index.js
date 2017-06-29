@@ -1,3 +1,4 @@
+const _ = require('lodash');
 const express = require('express');
 const router = express.Router();
 const {Todo} = require('../models/todo');
@@ -18,10 +19,6 @@ router.post('/todos', (req, res, next) => {
   }, e => {
       res.status(400).send(e);
   });
-});
-
-router.post('/photos/todos', (req, res, next) => {
-  //console.log(res.status);
 });
 
 router.get('/todos', (req, res) => {
@@ -68,6 +65,34 @@ router.delete('/todos/:id', (req, res) => {
   .catch( e => {
     res.status(400).send();
   });
+});
+
+router.patch('/todos/:id', (req, res) => {
+  let id = req.params.id;
+  let body = _.pick(req.body, ['text', 'completed']);
+
+  if(!ObjectID.isValid(id)) {
+    return res.status(404).send();
+  }
+
+  if(_.isBoolean(body.completed) && body.completed) {
+    body.completedAt = new Date().getTime();
+  }
+  else {
+    body.completed = false;
+    body.completedAt = null;
+  }
+
+  Todo.findByIdAndUpdate(id, {$set: body}, {new: true})
+    .then( todo => {
+      if(!todo) {
+        return res.status(404).send();
+      }
+      res.send({todo});
+    })
+    .catch( e => {
+      res.status(400).send();
+    });
 });
 
 module.exports = router;
