@@ -5,6 +5,8 @@ const {Todo} = require('../models/todo');
 const {User} = require('../models/user');
 const {ObjectID} = require('mongodb');
 
+const {authenticate} = require('../middleware/authenticate');
+
 /* GET home page. */
 router.get('/', function(req, res, next) {
   res.render('index', { title: 'Express' });
@@ -108,6 +110,10 @@ router.post('/users', (req, res) => {
   }).catch( e => {
     res.status(400).send(e);
   });
+});
+
+router.get('/users/me', authenticate, (req, res) => {
+  res.send(req.user);
 });
 
 module.exports = router;
