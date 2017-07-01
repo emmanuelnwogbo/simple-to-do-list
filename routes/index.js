@@ -12,10 +12,12 @@ router.get('/', function(req, res, next) {
   res.render('index', { title: 'Express' });
 });
 
-router.post('/todos', (req, res, next) => {
+router.post('/todos', authenticate, (req, res, next) => {
   let todo = new Todo({
-    text: req.body.text
+    text: req.body.text,
+    _creator: req.user._id
   });
+
   todo.save()
     .then( doc => {
       res.send(doc);
@@ -24,22 +26,27 @@ router.post('/todos', (req, res, next) => {
   });
 });
 
-router.get('/todos', (req, res) => {
-  Todo.find().then(todos => {
+router.get('/todos', authenticate, (req, res) => {
+  Todo.find({
+    _creator: req.user._id
+  }).then(todos => {
     res.send({todos});
   }, e => {
       res.status(400).send(e);
   });
 });
 
-router.get('/todos/:id', (req, res) => {
+router.get('/todos/:id', authenticate, (req, res) => {
   let id = req.params.id;
 
   if(!ObjectID.isValid(id)) {
     return res.status(404).send();
   }
 
-  Todo.findById(id).then(todo => {
+  Todo.findOne({
+    _id: id,
+    _creator: req.user._id
+  }).then(todo => {
     if(!todo) {
       return res.status(404).send();
     }
@@ -51,14 +58,17 @@ router.get('/todos/:id', (req, res) => {
   });
 });
 
-router.delete('/todos/:id', (req, res) => {
+router.delete('/todos/:id', authenticate, (req, res) => {
   let id = req.params.id;
 
   if(!ObjectID.isValid(id)) {
     return res.status(404).send();
   }
 
-  Todo.findByIdAndRemove(id).then( todo => {
+  Todo.findOneAndRemove({
+    _id: id,
+    _creator: req.user._id
+  }).then( todo => {
     if(!todo) {
       return res.status(404).send();
     }
@@ -70,7 +80,7 @@ router.delete('/todos/:id', (req, res) => {
   });
 });
 
-router.patch('/todos/:id', (req, res) => {
+router.patch('/todos/:id', authenticate, (req, res) => {
   let id = req.params.id;
   let body = _.pick(req.body, ['text', 'completed']);
 
@@ -86,7 +96,10 @@ router.patch('/todos/:id', (req, res) => {
     body.completedAt = null;
   }
 
-  Todo.findByIdAndUpdate(id, {$set: body}, {new: true})
+  Todo.findOneAndUpdate({
+    _id: id,
+    _creator: req.user._id
+   }, {$set: body}, {new: true})
     .then( todo => {
       if(!todo) {
         return res.status(404).send();

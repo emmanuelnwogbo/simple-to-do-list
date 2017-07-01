@@ -9,28 +9,6 @@ const bodyParser = require('body-parser');
 const {mongoose} = require('./db/mongoose');
 const {User} = require('./models/user');
 
-/*let newTodo = new Todo({
-  text: 'Cook dinner'
-});
-
-newTodo.save().then( doc => {
-  console.log('Saved todo', doc);
-}, e => {
-  console.log('Unable to save');
-});
-
-let user = new User({
-  email: 'y@example.com '
-});
-
-user.save().then( doc => {
-  console.log('User saved', doc);
-}, e => {
-    console.log('Unable to save user', e);
-});*/
-
-
-
 const index = require('./routes/index');
 const users = require('./routes/users');
 
